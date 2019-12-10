@@ -20,11 +20,11 @@ def identify():
 @sio.event
 def sys_info(_):
     cores = psutil.cpu_count()
-    load_avg = [f"{x / psutil.cpu_count() * 100}%" for x in
+    load_avg = [x / psutil.cpu_count() * 100 for x in
                 psutil.getloadavg()]
     memory = psutil.virtual_memory()
     return {
-        'cpu': f'{psutil.cpu_percent()}%',
+        'cpu': psutil.cpu_percent(),
         'load_average': load_avg,
         'cores': cores,
         'memory': memory.total,
@@ -41,7 +41,7 @@ def get_disks_info():
         partition['usage'] = {
             'total': disk_usage.total,
             'used': disk_usage.used,
-            'percent': f'{disk_usage.percent}%'
+            'percent': disk_usage.percent
         }
         partitions_with_disk_usage.append(partition)
 
