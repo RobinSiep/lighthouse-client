@@ -1,3 +1,4 @@
+import psutil
 import socketio
 
 sio = socketio.Client()
@@ -18,8 +19,16 @@ def identify():
 
 @sio.event
 def sys_info(_):
+    cores = psutil.cpu_count()
+    load_avg = [f"{x / psutil.cpu_count() * 100}%" for x in
+                psutil.getloadavg()]
+    memory = psutil.virtual_memory()
     return {
-        'cpu': '100%'
+        'cpu': f'{psutil.cpu_percent()}%',
+        'load_average': load_avg,
+        'cores': cores,
+        'memory': memory.total,
+        'memory_used': memory.used
     }
 
 
