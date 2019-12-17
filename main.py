@@ -1,11 +1,10 @@
 import argparse
-from socket import gethostbyname, gethostname
 
 import psutil
-import requests
 import socketio
 
-EXTERNAL_IP_SERVICE = 'https://api.ipify.org'
+from lighthouseclient.lib.system.networking import Network
+
 
 sio = socketio.Client()
 
@@ -21,14 +20,10 @@ def connect():
 
 
 def identify():
-    hostname = gethostname()
-    # Rough implementation, results may differ by platform
-    internal_ip_address = gethostbyname(hostname)
-
     sio.emit('identify', {
-        'name': hostname,
-        'internal_ip': internal_ip_address,
-        'external_ip': requests.get(EXTERNAL_IP_SERVICE).text
+        'name': Network.get_hostname(),
+        'internal_ip': Network.get_internal_ip_address(),
+        'external_ip': Network.get_external_ip_address()
     })
 
 
