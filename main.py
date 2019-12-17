@@ -1,7 +1,13 @@
+import argparse
+
 import psutil
 import socketio
 
 sio = socketio.Client()
+
+parser = argparse.ArgumentParser()
+parser.add_argument('destination', type=str,
+                    help="the lighthouse-master to connect to")
 
 
 @sio.event
@@ -65,5 +71,11 @@ def disconnect():
     print('disconnected from server')
 
 
-sio.connect('http://localhost:8080')
-sio.wait()
+def main():
+    args = parser.parse_args()
+
+    sio.connect(args.destination)
+    sio.wait()
+
+
+main()
