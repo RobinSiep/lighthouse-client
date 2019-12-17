@@ -29,15 +29,15 @@ def identify():
 
 
 @sio.event
-def sys_info(_):
-    return {
+def sys_info(*args):
+    sio.emit('sys_info', {
         'cpu': System.get_cpu_percent(),
         'load_average': System.get_load_average(),
         'cores': System.core_count,
         'memory': System.memory,
         'memory_used': System.get_memory_used(),
         'disks': [disk.__dict__ for disk in get_disks()]
-    }
+    })
 
 
 @sio.event
