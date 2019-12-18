@@ -16,7 +16,7 @@ parser.add_argument('destination', type=str,
 
 @sio.event
 def connect():
-    print('connection established')
+    print("connection established")
     identify()
 
 
@@ -42,13 +42,18 @@ def sys_info(*args):
 
 @sio.event
 def disconnect():
-    print('disconnected from server')
+    print("disconnected from server")
 
 
 def main():
     args = parser.parse_args()
 
-    sio.connect(args.destination)
+    sio.connect(
+        args.destination,
+        headers={
+            'User-Agent': "Lighthouse Client"
+        }
+    )
     sio.wait()
 
 
