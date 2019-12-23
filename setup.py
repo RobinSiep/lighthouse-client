@@ -7,7 +7,7 @@ requires = [
 ]
 
 setup(
-    name='sauronclient',
+    name='lighthouseclient',
     version='0.1',
     author='Robin Siep',
     author_email='hello@robinsiep.dev',
