@@ -1,4 +1,6 @@
 import psutil
+import re
+import uuid
 
 
 class System:
@@ -14,5 +16,10 @@ class System:
         return[x / System.core_count * 100 for x in
                psutil.getloadavg()]
 
+    @staticmethod
     def get_memory_used():
         return psutil.virtual_memory().used
+
+    @staticmethod
+    def get_mac_address():
+        return ':'.join(re.findall('..', '%012x' % uuid.getnode()))

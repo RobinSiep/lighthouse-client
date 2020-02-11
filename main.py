@@ -24,7 +24,8 @@ def identify():
     sio.emit('identify', {
         'name': Network.get_hostname(),
         'internal_ip': Network.get_internal_ip_address(),
-        'external_ip': Network.get_external_ip_address()
+        'external_ip': Network.get_external_ip_address(),
+        'mac_address': System.get_mac_address()
     })
 
 
