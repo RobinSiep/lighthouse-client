@@ -2,6 +2,7 @@ import argparse
 
 import socketio
 
+from lighthouseclient.lib.oauth import OAuthClient
 from lighthouseclient.lib.system import System
 from lighthouseclient.lib.system.disks import get_disks
 from lighthouseclient.lib.system.networking import Network
@@ -12,6 +13,10 @@ sio = socketio.Client()
 parser = argparse.ArgumentParser()
 parser.add_argument('destination', type=str,
                     help="the lighthouse-master to connect to")
+parser.add_argument('client_id', type=str,
+                    help="OAuth client id")
+parser.add_argument('client_secret', type=str,
+                    help="OAuth client secret")
 
 
 @sio.event
@@ -48,11 +53,17 @@ def disconnect():
 
 def main():
     args = parser.parse_args()
+    access_token = OAuthClient(
+        args.destination,
+        args.client_id,
+        args.client_secret
+    ).get_new_access_token()
 
     sio.connect(
         args.destination,
         headers={
-            'User-Agent': "Lighthouse Client"
+            'User-Agent': "Lighthouse Client",
+            'Authorization': f"Bearer {access_token}"
         }
     )
     sio.wait()
