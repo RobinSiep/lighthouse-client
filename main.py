@@ -2,6 +2,7 @@ import argparse
 
 import socketio
 
+from lighthouseclient.lib.exceptions import AuthenticationException
 from lighthouseclient.lib.oauth import OAuthClient
 from lighthouseclient.lib.system import System
 from lighthouseclient.lib.system.disks import get_disks
@@ -53,11 +54,16 @@ def disconnect():
 
 def main():
     args = parser.parse_args()
-    access_token = OAuthClient(
-        args.destination,
-        args.client_id,
-        args.client_secret
-    ).get_new_access_token()
+    try:
+        access_token = OAuthClient(
+            args.destination,
+            args.client_id,
+            args.client_secret
+        ).get_new_access_token()
+    except AuthenticationException:
+        print("Something went wrong authentication to Lighthouse. "
+              "Please verify your credentials")
+        return
 
     sio.connect(
         args.destination,

@@ -1,6 +1,9 @@
 from base64 import b64encode
+from json.decoder import JSONDecodeError
 
 import requests
+
+from lighthouseclient.lib.exceptions import AuthenticationException
 
 
 class OAuthClient:
@@ -20,4 +23,7 @@ class OAuthClient:
                 'grant_type': 'client_credentials'
             }
         )
-        return response.json()['access_token']
+        try:
+            return response.json()['access_token']
+        except (JSONDecodeError, KeyError):
+            raise AuthenticationException()
