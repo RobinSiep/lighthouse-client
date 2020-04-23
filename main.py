@@ -19,6 +19,9 @@ parser.add_argument('client_id', type=str,
                     help="OAuth client id")
 parser.add_argument('client_secret', type=str,
                     help="OAuth client secret")
+parser.add_argument('--interval', type=int, default=3,
+                    help="Interval between each emit of system info")
+args = parser.parse_args()
 
 
 @sio.event
@@ -37,7 +40,7 @@ async def identify():
 
 
 @sio.event
-async def sys_info(*args):
+async def sys_info():
     await sio.emit('sys_info', {
         'cpu': System.get_cpu_percent(),
         'load_average': System.get_load_average(),
@@ -48,8 +51,8 @@ async def sys_info(*args):
     })
 
     # We constantly want to be emitting sys_info
-    await sio.sleep(3)
-    await sys_info(*args)
+    await sio.sleep(args.interval)
+    await sys_info()
 
 
 @sio.event
@@ -58,7 +61,6 @@ def disconnect():
 
 
 async def main():
-    args = parser.parse_args()
     try:
         access_token = OAuthClient(
             args.destination,
