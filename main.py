@@ -1,4 +1,5 @@
 import argparse
+import asyncio
 
 import socketio
 
@@ -8,8 +9,8 @@ from lighthouseclient.lib.system import System
 from lighthouseclient.lib.system.disks import get_disks
 from lighthouseclient.lib.system.networking import Network
 
-
-sio = socketio.Client()
+loop = asyncio.get_event_loop()
+sio = socketio.AsyncClient()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('destination', type=str,
@@ -18,16 +19,19 @@ parser.add_argument('client_id', type=str,
                     help="OAuth client id")
 parser.add_argument('client_secret', type=str,
                     help="OAuth client secret")
+parser.add_argument('--interval', type=int, default=3,
+                    help="Interval between each emit of system info")
+args = parser.parse_args()
 
 
 @sio.event
-def connect():
+async def connect():
     print("connection established")
-    identify()
+    await identify()
 
 
-def identify():
-    sio.emit('identify', {
+async def identify():
+    await sio.emit('identify', {
         'name': Network.get_hostname(),
         'internal_ip': Network.get_internal_ip_address(),
         'external_ip': Network.get_external_ip_address(),
@@ -36,8 +40,8 @@ def identify():
 
 
 @sio.event
-def sys_info(*args):
-    sio.emit('sys_info', {
+async def sys_info():
+    await sio.emit('sys_info', {
         'cpu': System.get_cpu_percent(),
         'load_average': System.get_load_average(),
         'cores': System.core_count,
@@ -46,14 +50,17 @@ def sys_info(*args):
         'disks': [disk.__dict__ for disk in get_disks()]
     })
 
+    # We constantly want to be emitting sys_info
+    await sio.sleep(args.interval)
+    await sys_info()
+
 
 @sio.event
 def disconnect():
     print("disconnected from server")
 
 
-def main():
-    args = parser.parse_args()
+async def main():
     try:
         access_token = OAuthClient(
             args.destination,
@@ -65,14 +72,14 @@ def main():
               "Please verify your credentials")
         return
 
-    sio.connect(
+    await sio.connect(
         args.destination,
         headers={
             'User-Agent': "Lighthouse Client",
             'Authorization': f"Bearer {access_token}"
         }
     )
-    sio.wait()
+    await sio.wait()
 
 
-main()
+loop.run_until_complete(main())
