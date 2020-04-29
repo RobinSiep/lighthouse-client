@@ -2,8 +2,10 @@ from setuptools import setup
 
 
 requires = [
+    'aiohttp',
     'psutil',
-    'python-socketio'
+    'python-socketio',
+    'requests'
 ]
 
 setup(
