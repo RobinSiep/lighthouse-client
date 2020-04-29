@@ -1,16 +1,15 @@
 import argparse
 import asyncio
 
-import socketio
-
+from lighthouseclient import sio
 from lighthouseclient.lib.exceptions import AuthenticationException
 from lighthouseclient.lib.oauth import OAuthClient
 from lighthouseclient.lib.system import System
 from lighthouseclient.lib.system.disks import get_disks
 from lighthouseclient.lib.system.networking import Network
+from lighthouseclient.network import *  # noqa
 
 loop = asyncio.get_event_loop()
-sio = socketio.AsyncClient()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('destination', type=str,
@@ -33,7 +32,7 @@ async def connect():
 async def identify():
     await sio.emit('identify', {
         'name': Network.get_hostname(),
-        'internal_ip': Network.get_internal_ip_address(),
+        'network_interfaces': Network.get_network_interfaces(),
         'external_ip': Network.get_external_ip_address(),
         'mac_address': System.get_mac_address()
     })
