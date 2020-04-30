@@ -1,6 +1,7 @@
 FROM python:3.7
 
 RUN apt-get update
+RUN apt-get install wakeonlan
 
 RUN addgroup lighthouse
 RUN useradd -g lighthouse lighthouse
