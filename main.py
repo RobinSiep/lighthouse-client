@@ -40,6 +40,13 @@ async def identify():
 
 @sio.event
 async def sys_info():
+    # We constantly want to be emitting sys_info
+    while True:
+        await emit_sys_info()
+        await sio.sleep(args.interval)
+
+
+async def emit_sys_info():
     await sio.emit('sys_info', {
         'cpu': System.get_cpu_percent(),
         'load_average': System.get_load_average(),
@@ -48,10 +55,6 @@ async def sys_info():
         'memory_used': System.get_memory_used(),
         'disks': [disk.__dict__ for disk in get_disks()]
     })
-
-    # We constantly want to be emitting sys_info
-    await sio.sleep(args.interval)
-    await sys_info()
 
 
 @sio.event
