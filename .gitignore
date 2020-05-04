@@ -60,3 +60,4 @@ venv.bak/
 
 # Docker compose
 dev-compose.yml
+prod-compose.yml
