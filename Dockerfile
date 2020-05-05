@@ -16,4 +16,4 @@ USER lighthouse
 WORKDIR /home/lighthouse/lighthouse-client
 
 EXPOSE 7103
-ENTRYPOINT ["python3 main.py"]
+ENTRYPOINT ["python", "/home/lighthouse/lighthouse-client/main.py"]
