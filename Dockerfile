@@ -11,6 +11,8 @@ WORKDIR /home/lighthouse
 
 RUN pip install -e lighthouse-client
 
+USER lighthouse
+
 WORKDIR /home/lighthouse/lighthouse-client
 
 EXPOSE 7103
