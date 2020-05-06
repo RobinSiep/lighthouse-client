@@ -5,7 +5,7 @@ requires = [
     'aiohttp',
     'netifaces',
     'psutil',
-    'python-socketio',
+    'python-socketio[asyncio_client]',
     'requests'
 ]
 

@@ -22,6 +22,14 @@ parser.add_argument('--interval', type=int, default=3,
                     help="Interval between each emit of system info")
 args = parser.parse_args()
 
+oauth_client = OAuthClient(
+    args.destination,
+    args.client_id,
+    args.client_secret
+)
+
+sys_info_task = None
+
 
 @sio.event
 async def connect():
@@ -40,6 +48,11 @@ async def identify():
 
 @sio.event
 async def sys_info():
+    global sys_info_task
+    sys_info_task = asyncio.create_task(start_sys_info_sync())
+
+
+async def start_sys_info_sync():
     # We constantly want to be emitting sys_info
     while True:
         await emit_sys_info()
@@ -60,20 +73,25 @@ async def emit_sys_info():
 @sio.event
 def disconnect():
     print("disconnected from server")
+    cancel_sys_info_task()
 
 
-async def main():
+def cancel_sys_info_task():
     try:
-        access_token = OAuthClient(
-            args.destination,
-            args.client_id,
-            args.client_secret
-        ).get_new_access_token()
-    except AuthenticationException:
-        print("Something went wrong authentication to Lighthouse. "
-              "Please verify your credentials")
-        return
+        sys_info_task.cancel()
+    except AttributeError:
+        # No sys_info_task currently
+        pass
 
+
+async def reconnect(access_token):
+    await sio.disconnect()
+    cancel_sys_info_task()
+    await sio.sleep(3)
+    await connect_to_lighthouse(access_token)
+
+
+async def connect_to_lighthouse(access_token):
     await sio.connect(
         args.destination,
         headers={
@@ -81,7 +99,18 @@ async def main():
             'Authorization': f"Bearer {access_token}"
         }
     )
-    await sio.wait()
 
+
+async def main():
+    try:
+        access_token = await oauth_client.get_new_access_token(reconnect)
+    except AuthenticationException:
+        print("Something went wrong authentication to Lighthouse. "
+              "Please verify your credentials")
+        return
+
+    await connect_to_lighthouse(access_token)
+    while True:
+        await sio.wait()
 
 loop.run_until_complete(main())
