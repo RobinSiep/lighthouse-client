@@ -1,4 +1,4 @@
-FROM python:3.7 AS builder
+FROM python:3.7
 
 RUN apt-get update
 RUN apt-get install wakeonlan
@@ -10,11 +10,6 @@ COPY . /home/lighthouse/lighthouse-client
 WORKDIR /home/lighthouse
 
 RUN pip install -e lighthouse-client
-
-
-FROM python:3.7
-
-COPY --from=builder /home/lighthouse /home/lighthouse
 
 USER lighthouse
 
