@@ -7,6 +7,7 @@ from lighthouseclient.lib.oauth import OAuthClient
 from lighthouseclient.lib.system import System
 from lighthouseclient.lib.system.disks import get_disks
 from lighthouseclient.lib.system.networking import Network
+from lighthouseclient.machine import *  # noqa
 from lighthouseclient.network import *  # noqa
 
 loop = asyncio.get_event_loop()
