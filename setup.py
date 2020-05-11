@@ -14,5 +14,10 @@ setup(
     version='0.1',
     author='Robin Siep',
     author_email='hello@robinsiep.dev',
-    install_requires=requires
+    install_requires=requires,
+    entry_points={
+        'console_scripts': [
+            "lighthouseclient = lighthouseclient.app:main"
+        ]
+    }
 )
