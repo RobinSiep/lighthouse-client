@@ -14,7 +14,7 @@ Lighthouse supports Wake-on-LAN to power on a machine through another machine. I
 ## From source
 ```
 pip install -e .
-python3 main.py <YOUR LIGHTHOUSE HOST> '<YOUR CLIENT ID>' '<YOUR CLIENT SECRET>'
+lighthouseclient <YOUR LIGHTHOUSE HOST> '<YOUR CLIENT ID>' '<YOUR CLIENT SECRET>'
 ```
 
 ## Using Docker
