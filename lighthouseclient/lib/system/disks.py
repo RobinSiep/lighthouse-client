@@ -39,7 +39,10 @@ def get_disk_partitions():
 
 
 def parse_disk_partition(partition):
-    return {
-        'device': partition.device,
-        'mount_point': partition.mountpoint
-    }
+    try:
+        return {
+            'device': partition.device,
+            'mount_point': partition.mountpoint
+        }
+    except AttributeError:
+        raise ValueError("Given disk partition is invalid or malformatted")
