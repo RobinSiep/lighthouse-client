@@ -6,7 +6,7 @@ from lighthouseclient import sio
 @sio.event
 def shutdown():
     p = Popen(('shutdown', '-h', 'now'), stdout=PIPE, stderr=PIPE)
-    output, error = p.communicate()
+    _, error = p.communicate()
     if p.returncode != 0:
         error = error.decode('utf-8')
         if "NOT super-user" in error:
@@ -14,4 +14,4 @@ def shutdown():
 
         return False, error
     else:
-        return True
+        return True, None
