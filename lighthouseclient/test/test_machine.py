@@ -23,12 +23,27 @@ class TestShutdown(TestCase):
         with patch('lighthouseclient.machine.Popen') as MockedPopen:
             instance = MockedPopen.return_value
             instance.communicate.return_value = b"", b"NOT super-user"
-            instance.returncode = -1
+            instance.returncode = 1
 
             status, error = shutdown()
             self.assertFalse(status)
             self.assertIn(
                 "Insufficient permissions to perform shutdown", error
+            )
+            MockedPopen.assert_called_with(
+                ('shutdown', '-h', 'now'), stdout=PIPE, stderr=PIPE
+            )
+
+    def test_shutdown_unexpected_error(self):
+        with patch('lighthouseclient.machine.Popen') as MockedPopen:
+            instance = MockedPopen.return_value
+            instance.communicate.return_value = b"", b"Unexpected error test"
+            instance.returncode = 1
+
+            status, error = shutdown()
+            self.assertFalse(status)
+            self.assertIn(
+                "Unexpected error test", error
             )
             MockedPopen.assert_called_with(
                 ('shutdown', '-h', 'now'), stdout=PIPE, stderr=PIPE

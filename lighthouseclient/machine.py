@@ -10,7 +10,7 @@ def shutdown():
     if p.returncode != 0:
         error = error.decode('utf-8')
         if "NOT super-user" in error:
-            error = ("Insufficient permissions to perform shutdown")
+            error = "Insufficient permissions to perform shutdown"
 
         return False, error
     else:
