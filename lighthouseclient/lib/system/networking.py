@@ -1,8 +1,11 @@
 import asyncio
+import logging
 from socket import gethostname
 
 import requests
 from netifaces import ifaddresses, interfaces, AF_INET
+
+log = logging.getLogger(__name__)
 
 EXTERNAL_IP_SERVICE = 'https://api.ipify.org'
 
@@ -57,10 +60,13 @@ class PortScanner:
         while True:
             port = await self.task_queue.get()
             conn = asyncio.open_connection(self.host, port)
+            logging.debug(f"Scanning port {port}")
             try:
                 await asyncio.wait_for(conn, self.timeout)
-            except asyncio.TimeoutError:
+            except (asyncio.TimeoutError, ConnectionRefusedError):
                 pass
+            except Exception as e:
+                log.critical(e, exc_info=True)
             else:
                 self.out_queue.put_nowait(port)
             finally:
@@ -71,13 +77,11 @@ class PortScanner:
             await self.task_queue.put(port)
         self.scan_completed.set()
 
-    async def scan(self, max_port=49152):
-        self.scan_completed.clear()
-        tasks = [asyncio.create_task(self.task_manager(max_port))]
-
+    def create_tasks(self):
         for _ in range(self.max_workers):
-            tasks.append(asyncio.create_task(self.scan_port_from_queue()))
+            yield asyncio.create_task(self.scan_port_from_queue())
 
+    async def complete_tasks(self, tasks):
         await self.scan_completed.wait()
         await self.task_queue.join()
 
@@ -86,8 +90,20 @@ class PortScanner:
 
         await asyncio.gather(*tasks, return_exceptions=True)
 
-        open_ports = []
+    def get_scan_result(self):
         while self.out_queue.qsize():
-            open_ports.append(self.out_queue.get_nowait())
+            yield self.out_queue.get_nowait()
 
+    async def scan(self, max_port=49152):
+        self.scan_completed.clear()
+        tasks = [asyncio.create_task(self.task_manager(max_port))]
+        tasks += list(self.create_tasks())
+
+        log.info("Scanning ports")
+        await self.complete_tasks(tasks)
+
+        log.info("Collecting results")
+        open_ports = list(self.get_scan_result())
+
+        print(f"open ports: {open_ports}")
         return open_ports

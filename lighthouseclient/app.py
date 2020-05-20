@@ -1,5 +1,6 @@
 import argparse
 import asyncio
+import logging
 
 from lighthouseclient import sio
 from lighthouseclient.lib.exceptions import AuthenticationException
@@ -11,6 +12,7 @@ from lighthouseclient.machine import *  # noqa
 from lighthouseclient.network import *  # noqa
 
 loop = asyncio.get_event_loop()
+logging.basicConfig(level=logging.INFO)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('destination', type=str,

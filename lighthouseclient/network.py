@@ -16,7 +16,4 @@ def send_wake_on_LAN_packet(recipient_mac):
 
 @sio.event
 async def emit_ports():
-    print('called')
-    test = await PortScanner().scan()
-    print('done')
-    return test
+    return await PortScanner().scan()
