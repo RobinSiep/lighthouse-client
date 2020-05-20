@@ -73,7 +73,7 @@ class PortScanner:
                 self.task_queue.task_done()
 
     async def task_manager(self, max_port):
-        for port in range(1, max_port):
+        for port in range(1, max_port + 1):
             await self.task_queue.put(port)
         self.scan_completed.set()
 
